@@ -34,6 +34,11 @@ final class Exchange implements Request {
      */
     @Override
     public void process(Product product, RequestStatus status) throws RequestExceptions {
+        try{
+            product.process(this, status);
+        }
+        catch (ProductException e)
+            throw new Request
     }
 
     /**
