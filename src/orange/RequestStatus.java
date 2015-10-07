@@ -32,8 +32,7 @@ public class RequestStatus {
      */
     public RequestStatus(){
         this.statusCode = StatusCode.UKNOWN;
-        BigInteger bigInteger = new BigInteger("");
-        this.result = Optional.of(bigInteger);
+        this.result = Optional.empty();
     }
 
     /**

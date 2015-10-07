@@ -1,27 +1,29 @@
 package orange;
 
+import junit.framework.TestCase;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
 
 import java.math.BigInteger;
-import java.rmi.server.ExportException;
-import java.util.*;
-import java.util.regex.Matcher;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
- * Created by Andrew Hwang on 9/16/2015.
+ * Created by andrewhwang on 9/28/15.
  */
-public class OpodTest {
+public class OpodTest extends TestCase {
 
     private Opod o1;
     private SerialNumber serialNumber1;
     private Optional<Set<String>> description1;
+    private Exchange exchange;
+    private RequestStatus status;
+    private Refund refund;
 
     @Before
     public void setUp() throws Exception {
@@ -34,6 +36,23 @@ public class OpodTest {
         description1 = Optional.of(set1);
 
         o1 = new Opod(serialNumber1, description1);
+
+        Exchange.Builder exchangeBuilder = new Exchange.Builder();
+        SerialNumber s1 = new SerialNumber(BigInteger.valueOf(10000));
+        SerialNumber s2 = new SerialNumber(BigInteger.valueOf(10002));
+
+        exchangeBuilder.addCompatible(s1);
+        exchangeBuilder.addCompatible(s2);
+
+        exchange = exchangeBuilder.build();
+        status = new RequestStatus();
+
+        Refund.Builder refundBuilder = new Refund.Builder();
+        BigInteger rma = BigInteger.valueOf(500);
+
+        refundBuilder.setRma(rma);
+
+        refund = refundBuilder.build();
     }
 
     @After
@@ -48,7 +67,7 @@ public class OpodTest {
 
     @Test
     public void testIsValidSerialNumber() throws Exception {
-        assertEquals(Opod.isValidSerialNumber(o1.getSerialNumber()), true);
+        assertTrue(Opod.isValidSerialNumber(o1.getSerialNumber()));
     }
 
     @Test
@@ -94,5 +113,16 @@ public class OpodTest {
         assertEquals(AbstractProducts.make(o1.getProductType(), o1.getSerialNumber(), o1.getDescription()).hashCode(),
                 AbstractProducts.make(o2.getProductType(), o2.getSerialNumber(), o2.getDescription()).hashCode());
         System.out.print(AbstractProducts.make(o1.getProductType(), o1.getSerialNumber(), o1.getDescription()));
+    }
+
+    @Test
+    public void testExchangeProcess() throws Exception {
+        o1.process(exchange, status);
+        assertEquals(status.getStatusCode(), RequestStatus.StatusCode.OK);
+    }
+    @Test
+    public void testRefundProcess() throws Exception {
+        o1.process(refund, status);
+        assertEquals(status.getStatusCode(), RequestStatus.StatusCode.OK);
     }
 }

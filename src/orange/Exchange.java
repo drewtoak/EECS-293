@@ -23,7 +23,7 @@ final class Exchange implements Request {
      * @param builder
      */
     private Exchange(Builder builder){
-        compatibleSet = new TreeSet<>(builder.getCompatibleProducts());
+        this.compatibleSet = new TreeSet<>(builder.getCompatibleProducts());
     }
 
     /**
@@ -37,8 +37,9 @@ final class Exchange implements Request {
         try{
             product.process(this, status);
         }
-        catch (ProductException e)
-            throw new Request
+        catch (ProductException e) {
+            throw new RequestExceptions("There was a request error", e);
+        }
     }
 
     /**
@@ -46,7 +47,8 @@ final class Exchange implements Request {
      * @return NavigableSet of Serial Numbers.
      */
     public NavigableSet<SerialNumber> getCompatibleProducts(){
-        return compatibleSet;
+        NavigableSet<SerialNumber> getSet = new TreeSet<>(this.compatibleSet);
+        return getSet;
     }
 
     /**
@@ -59,7 +61,12 @@ final class Exchange implements Request {
          * Fields:
          * Set of SerialNumber field labeled set;
          */
-        Set<SerialNumber> set = new TreeSet<SerialNumber>();
+        Set<SerialNumber> set;
+        Set<SerialNumber> getSet;
+
+        public Builder(){
+            set = new TreeSet<>();
+        }
 
         /**
          * Adds compatible serial numbers to the set within Builder.
@@ -68,7 +75,7 @@ final class Exchange implements Request {
          */
         public Builder addCompatible(SerialNumber serialNumber){
             set.add(serialNumber);
-            return new Builder();
+            return this;
         }
 
         /**
@@ -76,7 +83,8 @@ final class Exchange implements Request {
          * @return a Set of SerialNumbers.
          */
         public Set<SerialNumber> getCompatibleProducts(){
-            return set;
+            getSet = new TreeSet<>(set);
+            return getSet;
         }
 
         /**

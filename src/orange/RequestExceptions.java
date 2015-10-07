@@ -27,6 +27,10 @@ public class RequestExceptions extends Exception{
         this.requestError = requestError;
     }
 
+    public RequestExceptions(String msg, Exception cause){
+
+    }
+
     public RequestStatus.StatusCode getStatusCode(){
         return this.statusCode;
     }

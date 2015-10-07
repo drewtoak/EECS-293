@@ -4,13 +4,14 @@ import static org.junit.Assert.*;
 
 import com.sun.org.apache.xerces.internal.util.SynchronizedSymbolTable;
 import junit.framework.Assert;
+import junit.framework.TestCase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.math.BigInteger;
 
-public class SerialNumberTest {
+public class SerialNumberTest extends TestCase{
 
     private SerialNumber s1;
     private SerialNumber s2;

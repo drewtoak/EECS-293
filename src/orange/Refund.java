@@ -25,7 +25,12 @@ final class Refund implements Request {
      */
     @Override
     public void process(Product product, RequestStatus status) throws RequestExceptions {
-
+        try{
+            product.process(this, status);
+        }
+        catch (ProductException e) {
+            throw new RequestExceptions("There was a request error", e);
+        }
     }
 
     /**
@@ -41,8 +46,9 @@ final class Refund implements Request {
      * Gets the rma value of Refund.
      * @return rma
      */
-    public BigInteger getRma(){
-        return rma;
+    public BigInteger getRma() {
+        BigInteger getRma = rma;
+        return getRma;
     }
 
     /**
@@ -56,6 +62,9 @@ final class Refund implements Request {
          */
         BigInteger rma;
 
+        public Builder(){
+            rma = BigInteger.ZERO;
+        }
         /**
          * Sets the rma value of Builder to the rma value inputted.
          * @param rma
@@ -64,10 +73,10 @@ final class Refund implements Request {
         public Builder setRma(BigInteger rma) throws RequestExceptions{
             if (rma != null) {
                 this.rma = rma;
-                return new Builder();
+                return this;
             }
             else
-                throw new RequestExceptions(RequestStatus.StatusCode.FAIL, Optional.of(rma),
+                throw new RequestExceptions(RequestStatus.StatusCode.FAIL, null,
                         RequestExceptions.RequestError.INVALID_RESULT);
         }
 

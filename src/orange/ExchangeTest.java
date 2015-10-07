@@ -1,5 +1,6 @@
 package orange;
 
+import junit.framework.TestCase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,12 +14,12 @@ import static org.junit.Assert.*;
 /**
  * Created by Andrew Hwang on 9/23/2015.
  */
-public class ExchangeTest {
+public class ExchangeTest extends TestCase{
 
-    Exchange exchange;
-    Exchange.Builder builder;
-    SerialNumber s1;
-    SerialNumber s2;
+    private Exchange exchange;
+    private Exchange.Builder builder;
+    private SerialNumber s1;
+    private SerialNumber s2;
 
     @Before
     public void setUp() throws Exception {

@@ -1,6 +1,7 @@
 package orange;
 
 import java.math.BigInteger;
+import java.util.NavigableSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -30,16 +31,49 @@ public final class Owatch extends AbstractProducts{
         return ProductType.OWATCH;
     }
 
+    /**
+     * As for exchanges, consider the smallest compatible serial number
+     * that is strictly greater than the original oWatch serial number. If no
+     * such compatible product exists, the exchange fails. Otherwise, the
+     * status is set to OK and the result is set to the serial number of the new
+     * oWatch.
+     * @param request
+     * @param status
+     * @throws ProductException
+     */
     @Override
     public void process(Exchange request, RequestStatus status) throws ProductException {
-        throw new ProductException(this.getProductType(), this.getSerialNumber(),
-                ProductException.ErrorCode.UNSUPPORTED_OPERATION);
+        NavigableSet<SerialNumber> tempSet = request.getCompatibleProducts();
+        SerialNumber compatSerialNumber = tempSet.higher(serialNumber);
+
+        if (0 < compatSerialNumber.getSerialNumber().compareTo(BigInteger.ZERO)) {
+            status.setStatusCode(RequestStatus.StatusCode.OK);
+            status.setResult(Optional.of(compatSerialNumber.getSerialNumber()));
+        }
+        else {
+            status.setStatusCode(RequestStatus.StatusCode.FAIL);
+        }
     }
 
+    /**
+     * A refund succeeds if and only if the exclusive OR of the serial number
+     * and the RMA is greater than 14, in which case the status
+     * is set to OK and the result is set to undefined.
+     * @param request
+     * @param status
+     * @throws ProductException
+     */
     @Override
     public void process(Refund request, RequestStatus status) throws ProductException {
-        throw new ProductException(this.getProductType(), this.getSerialNumber(),
-                ProductException.ErrorCode.UNSUPPORTED_OPERATION);
+        BigInteger refundRma = request.getRma();
+        BigInteger serialXorRma = serialNumber.getSerialNumber().xor(refundRma);
+
+        if (BigInteger.valueOf(14).compareTo(serialXorRma) < 0){
+            status.setStatusCode(RequestStatus.StatusCode.OK);
+            status.setResult(Optional.of(refundRma));
+        }
+        else
+            status.setStatusCode(RequestStatus.StatusCode.FAIL);
     }
 
     /**

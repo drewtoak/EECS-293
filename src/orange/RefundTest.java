@@ -1,5 +1,6 @@
 package orange;
 
+import junit.framework.TestCase;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,7 +12,7 @@ import static org.junit.Assert.*;
 /**
  * Created by Andrew Hwang on 9/23/2015.
  */
-public class RefundTest {
+public class RefundTest extends TestCase{
 
     Refund refund;
     Refund.Builder builder;
@@ -34,6 +35,6 @@ public class RefundTest {
 
     @Test
     public void testGetRma() throws Exception {
-        assertEquals(refund.getRma(), builder.getRma());
+        assertEquals(refund.getRma(), BigInteger.valueOf(20));
     }
 }

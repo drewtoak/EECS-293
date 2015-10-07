@@ -1,5 +1,6 @@
 package orange;
 
+import java.math.BigInteger;
 import java.util.Optional;
 import java.util.Set;
 
@@ -29,16 +30,52 @@ public final class Opod extends AbstractProducts {
         return ProductType.OPOD;
     }
 
+    /**
+     * An oPod is exchanged with any product that has a compatible
+     * serial number. If no compatible product exists, the exchange fails.
+     * Otherwise, the status is set to OK and the result is set to the serial
+     * number of the new oPad.
+     * @param request
+     * @param status
+     * @throws ProductException
+     */
     @Override
     public void process(Exchange request, RequestStatus status) throws ProductException {
-        throw new ProductException(this.getProductType(), this.getSerialNumber(),
-                ProductException.ErrorCode.UNSUPPORTED_OPERATION);
+        SerialNumber compatibleNumber = new SerialNumber(BigInteger.ZERO);
+
+        for (SerialNumber compatSerialNumber: request.getCompatibleProducts()) {
+            if (serialNumber.compareTo(compatSerialNumber) == 0) {
+                compatibleNumber = compatSerialNumber;
+            }
+        }
+
+        if (compatibleNumber.getSerialNumber().compareTo(BigInteger.ZERO) > 0){
+            status.setStatusCode(RequestStatus.StatusCode.OK);
+            status.setResult(Optional.of(compatibleNumber.getSerialNumber()));
+        }
+        else {
+            status.setStatusCode(RequestStatus.StatusCode.FAIL);
+        }
     }
 
+    /**
+     * An oPod refund succeeds if and only if the greatest common divisor of
+     * the RMA and the serial number is at least 24, in which case the status
+     * is set to OK and the result is set to undefined.
+     * @param request
+     * @param status
+     * @throws ProductException
+     */
     @Override
     public void process(Refund request, RequestStatus status) throws ProductException {
-        throw new ProductException(this.getProductType(), this.getSerialNumber(),
-                ProductException.ErrorCode.UNSUPPORTED_OPERATION);
+        int rmaGcd = request.getRma().gcd(this.serialNumber.getSerialNumber()).compareTo(BigInteger.valueOf(24));
+
+        if (0 <= rmaGcd){
+            status.setStatusCode(RequestStatus.StatusCode.OK);
+            status.setResult(Optional.<BigInteger>empty());
+        }
+        else
+            status.setStatusCode(RequestStatus.StatusCode.FAIL);
     }
 
     /**
